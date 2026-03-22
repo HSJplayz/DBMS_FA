@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en" id="aboutHtml">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About | SpiceRoute Database</title>
+    <meta name="description" content="Database architecture and schema for the SpiceRoute Recipe Finder - DBMS Project">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <!-- Mermaid.js for ER Diagram -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        /* ─── About Page Specific Styles ─────────────────────────────────────────── */
+        :root {
+            --about-blue: #1a73e8;
+            --about-green: #34a853;
+            --about-orange: #ff6d00;
+            --about-purple: #7c3aed;
+            --about-red: #e53935;
+            --card-radius: 16px;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        /* Hero Banner */
+        .about-hero {
+            background: linear-gradient(135deg, #0f1923 0%, #1a2d1a 50%, #0f2318 100%);
+            padding: 5rem 0 3.5rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(circle at 20% 50%, rgba(61, 139, 55, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(26, 115, 232, 0.1) 0%, transparent 40%);
+        }
+
+        .about-hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3.2rem);
+            color: #fff;
+            margin-bottom: 0.75rem;
+            position: relative;
+        }
+
+        .about-hero h1 span {
+            color: var(--about-green);
+        }
+
+        .about-hero p {
+            color: rgba(255, 255, 255, 0.65);
+            font-size: 1.05rem;
+            max-width: 560px;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .hero-chips {
+            display: flex;
+            gap: 0.6rem;
+            justify-content: center;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .hero-chip {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #ccc;
+            padding: 0.35rem 1rem;
+            border-radius: 99px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(6px);
+        }
+
+        .hero-chip strong {
+            color: var(--about-green);
+        }
+
+        a.hero-chip {
+            text-decoration: none;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, transform 0.15s;
+        }
+
+        a.hero-chip:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: translateY(-2px);
+        }
+
+        a.hero-chip:hover strong {
+            color: #fff;
+        }
+
+        /* Live Stats Row */
+        .db-stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .db-stat-card {
+            background: var(--surface, #fff);
+            border: 1.5px solid var(--border, #e5e7eb);
+            border-radius: var(--card-radius);
+            padding: 1.4rem 1rem;
+            text-align: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .db-stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .db-stat-card .stat-num {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--about-green);
+            font-family: var(--font-mono);
+            line-height: 1;
+        }
+
+        .db-stat-card .stat-lbl {
+            font-size: 0.78rem;
+            color: var(--text-muted, #6b7280);
+            margin-top: 0.35rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .db-stat-card .stat-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.4rem;
+        }
+
+        /* Section headings */
+        .about-section {
+            padding: 3rem 0;
+        }
+
+        .about-section-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .about-section-title .sec-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            flex-shrink: 0;
+        }
+
+        .about-section-title h2 {
+            font-size: 1.6rem;
+            margin: 0;
+        }
+
+        .about-section-subtitle {
+            color: var(--text-muted, #6b7280);
+            margin-bottom: 2rem;
+            padding-left: 52px;
+        }
+
+        /* ─── ER Diagram ──────────────────────────────────────────────────────────── */
+        .er-wrapper {
+            background: var(--surface, #fff);
+            border: 1.5px solid var(--border, #e5e7eb);
+            border-radius: var(--card-radius);
+            padding: 2rem;
+            overflow-x: auto;
+        }
+
+        .er-wrapper .mermaid {
+            min-height: 300px;
+        }
+
+        /* ─── Table Schema Cards ─────────────────────────────────────────────────── */
+        .table-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .table-card {
+            border-radius: var(--card-radius);
+            border: 1.5px solid var(--border, #e5e7eb);
+            overflow: hidden;
+            background: var(--surface, #fff);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .table-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.09);
+        }
+
+        .table-card-header {
+            padding: 0.9rem 1.2rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            color: #fff;
+        }
+
+        .table-card-header .tbl-icon {
+            font-size: 1.2rem;
+        }
+
+        .table-card-header .tbl-name {
+            font-family: var(--font-mono);
+            letter-spacing: 0.04em;
+        }
+
+        .tc-recipe .table-card-header {
+            background: linear-gradient(135deg, #1a73e8, #0d47a1);
+        }
+
+        .tc-ingredient .table-card-header {
+            background: linear-gradient(135deg, #34a853, #1b5e20);
+        }
+
+        .tc-junction .table-card-header {
+            background: linear-gradient(135deg, #ff6d00, #e65100);
+        }
+
+        .tc-users .table-card-header {
+            background: linear-gradient(135deg, #7c3aed, #4a148c);
+        }
+
+        .schema-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .schema-table th {
+            background: var(--surface-alt, #f9fafb);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted, #6b7280);
+            padding: 0.5rem 1rem;
+            text-align: left;
+            border-bottom: 1.5px solid var(--border, #e5e7eb);
+        }
+
+        .schema-table td {
+            padding: 0.55rem 1rem;
+            font-size: 0.88rem;
+            border-bottom: 1px solid var(--border, #e5e7eb);
+            vertical-align: middle;
+        }
+
+        .schema-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .schema-table tr:hover td {
+            background: var(--surface-alt, #f9fafb);
+        }
+
+        .col-name {
+            font-family: var(--font-mono);
+            font-weight: 500;
+        }
+
+        .col-type {
+            color: var(--about-blue);
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+        }
+
+        .badge-pk {
+            background: #fef3c7;
+            color: #92400e;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        .badge-fk {
+            background: #dbeafe;
+            color: #1d4ed8;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        .badge-uq {
+            background: #f0fdf4;
+            color: #166534;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            font-family: var(--font-mono);
+        }
+
+        /* ─── Normalization Section ──────────────────────────────────────────────── */
+        .norm-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .norm-card {
+            border-radius: var(--card-radius);
+            border: 1.5px solid var(--border, #e5e7eb);
+            padding: 1.5rem;
+            background: var(--surface, #fff);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .norm-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .norm-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .norm-1nf::before {
+            background: linear-gradient(90deg, #34a853, #0f9d58);
+        }
+
+        .norm-2nf::before {
+            background: linear-gradient(90deg, #1a73e8, #0d47a1);
+        }
+
+        .norm-3nf::before {
+            background: linear-gradient(90deg, #7c3aed, #4a148c);
+        }
+
+        .norm-bcnf::before {
+            background: linear-gradient(90deg, #ff6d00, #e65100);
+        }
+
+        .norm-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+            padding: 0.2rem 0.6rem;
+            border-radius: 99px;
+        }
+
+        .norm-1nf .norm-label {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .norm-2nf .norm-label {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .norm-3nf .norm-label {
+            background: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .norm-bcnf .norm-label {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .norm-card h3 {
+            font-size: 1rem;
+            margin: 0 0 0.5rem;
+        }
+
+        .norm-card p {
+            font-size: 0.88rem;
+            color: var(--text-muted, #6b7280);
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        .norm-check {
+            color: #16a34a;
+            font-size: 0.82rem;
+            margin-top: 0.7rem;
+            font-weight: 500;
+        }
+
+        /* ─── Relationships ──────────────────────────────────────────────────────── */
+        .rel-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .rel-card {
+            background: var(--surface, #fff);
+            border: 1.5px solid var(--border, #e5e7eb);
+            border-radius: var(--card-radius);
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            transition: transform 0.2s;
+        }
+
+        .rel-card:hover {
+            transform: translateX(4px);
+        }
+
+        .rel-badge {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.07em;
+            text-transform: uppercase;
+            padding: 0.4rem 0.75rem;
+            border-radius: 8px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .rel-1m {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .rel-mm {
+            background: #fce7f3;
+            color: #9d174d;
+        }
+
+        .rel-ind {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .rel-desc {
+            font-size: 0.9rem;
+            line-height: 1.5;
+            color: var(--text, #111);
+        }
+
+        .rel-desc strong {
+            color: var(--about-green);
+        }
+
+        /* Dark mode overrides */
+        [data-theme="dark"] .about-hero {
+            background: linear-gradient(135deg, #0a0f0a 0%, #0f1a0f 100%);
+        }
+
+        [data-theme="dark"] .db-stat-card,
+        [data-theme="dark"] .table-card,
+        [data-theme="dark"] .norm-card,
+        [data-theme="dark"] .rel-card,
+        [data-theme="dark"] .er-wrapper {
+            background: #1a1a2e;
+            border-color: #2a2a3e;
+        }
+
+        [data-theme="dark"] .schema-table th {
+            background: #0f0f1a;
+        }
+
+        [data-theme="dark"] .schema-table tr:hover td {
+            background: #0f0f1a;
+        }
+
+        /* Divider */
+        .about-divider {
+            border: none;
+            border-top: 1.5px solid var(--border, #e5e7eb);
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navigation (same as index.html) -->
+    <nav class="navbar">
+        <div class="container nav-content">
+            <a href="index.html" class="logo logo-link">
+                <svg class="logo-icon" width="38" height="38" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <rect width="100" height="100" rx="14" fill="#3d8b37" />
+                    <rect x="14" y="16" width="72" height="10" rx="5" fill="white" />
+                    <path d="M14,26 Q14,40 22,40 Q30,40 30,32 Q30,26 24,26" fill="none" stroke="white" stroke-width="7"
+                        stroke-linecap="round" />
+                    <path d="M86,26 Q86,40 78,40 Q70,40 70,32 Q70,26 76,26" fill="none" stroke="white" stroke-width="7"
+                        stroke-linecap="round" />
+                    <line x1="42" y1="26" x2="42" y2="60" stroke="white" stroke-width="7" stroke-linecap="round" />
+                    <line x1="50" y1="26" x2="50" y2="60" stroke="white" stroke-width="7" stroke-linecap="round" />
+                    <line x1="58" y1="26" x2="58" y2="60" stroke="white" stroke-width="7" stroke-linecap="round" />
+                    <path d="M42,60 Q42,72 50,72 Q58,72 58,60" fill="none" stroke="white" stroke-width="7"
+                        stroke-linecap="round" />
+                    <line x1="50" y1="72" x2="50" y2="86" stroke="white" stroke-width="7" stroke-linecap="round" />
+                    <rect x="22" y="82" width="20" height="8" rx="3" fill="white" />
+                    <rect x="58" y="82" width="20" height="8" rx="3" fill="white" />
+                </svg>
+                <span class="logo-text">SpiceRoute</span>
+            </a>
+            <div class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="index.html#categories">Categories</a>
+                <a href="index.html#ingredients">Ingredients</a>
+                <a href="index.html#latest">Latest</a>
+                <a href="about.html" class="active">About</a>
+            </div>
+            <label class="theme-toggle-switch" title="Toggle dark mode">
+                <input type="checkbox" id="themeToggleChk" onchange="toggleTheme()">
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+            </label>
+        </div>
+    </nav>
+
+    <!-- Hero Banner -->
+    <section class="about-hero">
+        <div class="container">
+            <h1>Database <span>Architecture</span></h1>
+            <p>Behind every recipe is a carefully designed database. Explore the schema, relationships, and
+                normalization of the SpiceRoute DBMS.</p>
+            <div class="hero-chips">
+                <a href="#section-stats" class="hero-chip"><strong>MySQL</strong></a>
+                <a href="#section-tables" class="hero-chip"><strong>6 Tables</strong></a>
+                <a href="#section-norm" class="hero-chip"><strong>3NF Normalized</strong></a>
+                <a href="#section-er" class="hero-chip"><strong>FK Constraints</strong></a>
+                <a href="#section-rel" class="hero-chip"><strong>Auth + JWT</strong></a>
+            </div>
+        </div>
+    </section>
+
+    <main class="container" style="padding-top:2.5rem; padding-bottom:4rem;">
+
+        <!-- ── Live DB Stats ──────────────────────────────────────────────────────── -->
+        <div class="about-section" id="section-stats">
+            <div class="about-section-title">
+                <div class="sec-icon" style="background:#dcfce7;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#166534" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <path d="M3 9h18M3 15h18M9 3v18" />
+                    </svg>
+                </div>
+                <h2>Live Database Stats</h2>
+            </div>
+            <p class="about-section-subtitle">Fetched in real-time from MySQL — shows current state of the database.</p>
+            <div class="db-stats-row" id="dbStatsRow">
+                <div class="db-stat-card">
+                    <div class="stat-num" id="statRecipes">—</div>
+                    <div class="stat-lbl">Recipes</div>
+                </div>
+                <div class="db-stat-card">
+                    <div class="stat-num" id="statIngredients">—</div>
+                    <div class="stat-lbl">Ingredients</div>
+                </div>
+                <div class="db-stat-card">
+                    <div class="stat-num" id="statLinks">—</div>
+                    <div class="stat-lbl">Recipe-Ingredient Links</div>
+                </div>
+                <div class="db-stat-card">
+                    <div class="stat-num" id="statUsers">—</div>
+                    <div class="stat-lbl">Registered Users</div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="about-divider">
+
+        <!-- ── ER Diagram ─────────────────────────────────────────────────────────── -->
+        <div class="about-section" id="section-er">
+            <div class="about-section-title">
+                <div class="sec-icon" style="background:#dbeafe;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1d4ed8" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="2" y="7" width="6" height="4" rx="1" />
+                        <rect x="16" y="7" width="6" height="4" rx="1" />
+                        <rect x="9" y="14" width="6" height="4" rx="1" />
+                        <path d="M5 11v3h14v-3M12 14v-3" />
+                    </svg>
+                </div>
+                <h2>Entity-Relationship Diagram</h2>
+            </div>
+            <p class="about-section-subtitle">Crow's foot notation — rendered by Mermaid.js from code, not a static
+                image.</p>
+            <div class="er-wrapper">
+                <div class="mermaid">
+                    erDiagram
+                    recipe {
+                    INT id PK
+                    VARCHAR name
+                    TEXT directions
+                    }
+
+                    ingredient {
+                    INT id PK
+                    VARCHAR name "UNIQUE"
+                    }
+
+                    recipe_ingredient {
+                    INT id PK
+                    INT recipe_id FK
+                    INT ingredient_id FK
+                    VARCHAR quantity
+                    VARCHAR unit
+                    VARCHAR size
+                    TEXT notes
+                    }
+
+                    users {
+                    INT id PK
+                    VARCHAR name
+                    VARCHAR email "UNIQUE"
+                    VARCHAR password
+                    TINYINT is_admin
+                    }
+
+                    ratings {
+                    INT id PK
+                    INT recipe_id FK
+                    INT user_id FK
+                    VARCHAR reviewer_name
+                    TINYINT stars
+                    TEXT review_text
+                    TIMESTAMP created_at
+                    }
+
+                    bookmarks {
+                    INT id PK
+                    INT user_id FK
+                    INT recipe_id FK
+                    TIMESTAMP created_at
+                    }
+
+                    recipe ||--o{ recipe_ingredient : "has"
+                    ingredient ||--o{ recipe_ingredient : "used in"
+                    recipe ||--o{ ratings : "receives"
+                    users ||--o{ ratings : "writes"
+                    users ||--o{ bookmarks : "saves"
+                    recipe ||--o{ bookmarks : "bookmarked"
+                </div>
+            </div>
+        </div>
+
+        <hr class="about-divider">
+
+        <!-- ── Table Schema Cards ─────────────────────────────────────────────────── -->
+        <div class="about-section" id="section-tables">
+            <div class="about-section-title">
+                <div class="sec-icon" style="background:#ede9fe;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5b21b6" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <path d="M3 8h18M8 3v18" />
+                    </svg>
+                </div>
+                <h2>Table Schemas</h2>
+            </div>
+            <p class="about-section-subtitle">Column-level detail for every table — types, primary keys, foreign keys,
+                and constraints.</p>
+            <div class="table-cards-grid">
+
+                <!-- recipe table -->
+                <div class="table-card tc-recipe">
+                    <div class="table-card-header">
+                        <span class="tbl-name">recipe</span>
+                    </div>
+                    <table class="schema-table">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Type</th>
+                                <th>Constraint</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="col-name">id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-pk">PK · AUTO_INCREMENT</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">name</td>
+                                <td class="col-type">VARCHAR(255)</td>
+                                <td>NOT NULL</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">directions</td>
+                                <td class="col-type">TEXT</td>
+                                <td>—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ingredient table -->
+                <div class="table-card tc-ingredient">
+                    <div class="table-card-header">
+                        <span class="tbl-name">ingredient</span>
+                    </div>
+                    <table class="schema-table">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Type</th>
+                                <th>Constraint</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="col-name">id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-pk">PK · AUTO_INCREMENT</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">name</td>
+                                <td class="col-type">VARCHAR(255)</td>
+                                <td><span class="badge-uq">UNIQUE · NOT NULL</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- recipe_ingredient junction table -->
+                <div class="table-card tc-junction">
+                    <div class="table-card-header">
+                        <span class="tbl-name">recipe_ingredient</span>
+                    </div>
+                    <table class="schema-table">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Type</th>
+                                <th>Constraint</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="col-name">id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-pk">PK · AUTO_INCREMENT</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">recipe_id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-fk">FK → recipe.id</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">ingredient_id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-fk">FK → ingredient.id</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">quantity</td>
+                                <td class="col-type">VARCHAR(50)</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">unit</td>
+                                <td class="col-type">VARCHAR(50)</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">size</td>
+                                <td class="col-type">VARCHAR(50)</td>
+                                <td>—</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">notes</td>
+                                <td class="col-type">TEXT</td>
+                                <td>—</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- users table -->
+                <div class="table-card tc-users">
+                    <div class="table-card-header">
+                        <span class="tbl-name">users</span>
+                    </div>
+                    <table class="schema-table">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Type</th>
+                                <th>Constraint</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="col-name">id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-pk">PK · AUTO_INCREMENT</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">name</td>
+                                <td class="col-type">VARCHAR(255)</td>
+                                <td>NOT NULL</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">email</td>
+                                <td class="col-type">VARCHAR(255)</td>
+                                <td><span class="badge-uq">UNIQUE · NOT NULL</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">password</td>
+                                <td class="col-type">VARCHAR(255)</td>
+                                <td>NOT NULL (bcrypt hashed)</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">is_admin</td>
+                                <td class="col-type">TINYINT(1)</td>
+                                <td>DEFAULT 0</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- ratings table -->
+                <div class="table-card tc-junction">
+                    <div class="table-card-header">
+                        <span class="tbl-name">ratings</span>
+                    </div>
+                    <table class="schema-table">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Type</th>
+                                <th>Constraint</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="col-name">id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-pk">PK &middot; AUTO_INCREMENT</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">recipe_id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-fk">FK &rarr; recipe.id</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">user_id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-fk">FK &rarr; users.id</span> (nullable)</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">reviewer_name</td>
+                                <td class="col-type">VARCHAR(100)</td>
+                                <td>DEFAULT 'Anonymous'</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">stars</td>
+                                <td class="col-type">TINYINT</td>
+                                <td>NOT NULL (1-5)</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">review_text</td>
+                                <td class="col-type">TEXT</td>
+                                <td>&mdash;</td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">created_at</td>
+                                <td class="col-type">TIMESTAMP</td>
+                                <td>DEFAULT CURRENT_TIMESTAMP</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- bookmarks table -->
+                <div class="table-card tc-recipe">
+                    <div class="table-card-header">
+                        <span class="tbl-name">bookmarks</span>
+                    </div>
+                    <table class="schema-table">
+                        <thead>
+                            <tr>
+                                <th>Column</th>
+                                <th>Type</th>
+                                <th>Constraint</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="col-name">id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-pk">PK &middot; AUTO_INCREMENT</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">user_id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-fk">FK &rarr; users.id</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">recipe_id</td>
+                                <td class="col-type">INT</td>
+                                <td><span class="badge-fk">FK &rarr; recipe.id</span></td>
+                            </tr>
+                            <tr>
+                                <td class="col-name">created_at</td>
+                                <td class="col-type">TIMESTAMP</td>
+                                <td>DEFAULT CURRENT_TIMESTAMP</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+
+        <hr class="about-divider">
+
+        <!-- ── Normalization ────────────────────────────────────────────────────────── -->
+        <div class="about-section" id="section-norm">
+            <div class="about-section-title">
+                <div class="sec-icon" style="background:#ffedd5;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                        <path d="M2 17l10 5 10-5" />
+                        <path d="M2 12l10 5 10-5" />
+                    </svg>
+                </div>
+                <h2>Database Normalization</h2>
+            </div>
+            <p class="about-section-subtitle">The schema is normalized up to 3NF — eliminating redundancy and ensuring
+                data integrity.</p>
+            <div class="norm-cards">
+
+                <div class="norm-card norm-1nf">
+                    <div class="norm-label">1NF</div>
+                    <h3>First Normal Form</h3>
+                    <p>Every column holds atomic (indivisible) values. There are no repeating groups — ingredients are
+                        stored in a separate <strong>ingredient</strong> table, not as comma-separated values.</p>
+                    <div class="norm-check">&#10003; All tables satisfy 1NF</div>
+                </div>
+
+                <div class="norm-card norm-2nf">
+                    <div class="norm-label">2NF</div>
+                    <h3>Second Normal Form</h3>
+                    <p>Every non-key attribute is fully functionally dependent on the entire primary key. The junction
+                        table <strong>recipe_ingredient</strong> uses its own id PK, so quantity/unit fully depend on
+                        that PK only.</p>
+                    <div class="norm-check">&#10003; No partial dependencies</div>
+                </div>
+
+                <div class="norm-card norm-3nf">
+                    <div class="norm-label">3NF</div>
+                    <h3>Third Normal Form</h3>
+                    <p>No transitive dependencies exist. Ingredient details (name) live in <strong>ingredient</strong>,
+                        not duplicated in recipe_ingredient. User role (is_admin) is not derived from any non-key
+                        attribute.</p>
+                    <div class="norm-check">&#10003; No transitive dependencies</div>
+                </div>
+
+                <div class="norm-card norm-bcnf">
+                    <div class="norm-label">BCNF</div>
+                    <h3>Boyce-Codd Normal Form</h3>
+                    <p>For every functional dependency X → Y, X is a superkey. All determinants in our tables are either
+                        primary keys or unique columns (e.g., <strong>ingredient.name</strong> is UNIQUE).</p>
+                    <div class="norm-check">&#10003; All determinants are superkeys</div>
+                </div>
+
+            </div>
+        </div>
+
+        <hr class="about-divider">
+
+        <!-- ── Relationships ─────────────────────────────────────────────────────── -->
+        <div class="about-section" id="section-rel">
+            <div class="about-section-title">
+                <div class="sec-icon" style="background:#fce7f3;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9d174d" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                    </svg>
+                </div>
+                <h2>Table Relationships</h2>
+            </div>
+            <p class="about-section-subtitle">How the tables connect — in plain English and cardinality notation.</p>
+            <div class="rel-list">
+
+                <div class="rel-card">
+                    <span class="rel-badge rel-1m">1 : M</span>
+                    <div class="rel-desc">
+                        <strong>recipe</strong> → <strong>recipe_ingredient</strong> &nbsp;|&nbsp;
+                        One recipe can have <em>many</em> recipe_ingredient rows. Each row represents one ingredient
+                        used with its quantity.
+                    </div>
+                </div>
+
+                <div class="rel-card">
+                    <span class="rel-badge rel-1m">1 : M</span>
+                    <div class="rel-desc">
+                        <strong>ingredient</strong> → <strong>recipe_ingredient</strong> &nbsp;|&nbsp;
+                        One ingredient can appear in <em>many</em> recipe_ingredient rows — across different recipes.
+                    </div>
+                </div>
+
+                <div class="rel-card">
+                    <span class="rel-badge rel-mm">M : M</span>
+                    <div class="rel-desc">
+                        <strong>recipe</strong> ↔ <strong>ingredient</strong> &nbsp;|&nbsp;
+                        Many-to-many relationship resolved via the <strong>recipe_ingredient</strong> junction table. A
+                        recipe has many ingredients; an ingredient is used in many recipes.
+                    </div>
+                </div>
+
+                <div class="rel-card">
+                    <span class="rel-badge rel-ind">Independent</span>
+                    <div class="rel-desc">
+                        <strong>users</strong> is an independent entity managing authentication. Users have an
+                        <em>is_admin</em> flag to control write access. No FK to recipes &mdash; keeping auth decoupled
+                        from
+                        recipe data.
+                    </div>
+                </div>
+
+                <div class="rel-card">
+                    <span class="rel-badge rel-1m">1 : M</span>
+                    <div class="rel-desc">
+                        <strong>recipe</strong> &rarr; <strong>ratings</strong> &nbsp;|&nbsp;
+                        One recipe can receive <em>many</em> ratings/reviews from different users.
+                    </div>
+                </div>
+
+                <div class="rel-card">
+                    <span class="rel-badge rel-1m">1 : M</span>
+                    <div class="rel-desc">
+                        <strong>users</strong> &rarr; <strong>ratings</strong> &nbsp;|&nbsp;
+                        One user can write <em>many</em> reviews across different recipes.
+                    </div>
+                </div>
+
+                <div class="rel-card">
+                    <span class="rel-badge rel-mm">M : M</span>
+                    <div class="rel-desc">
+                        <strong>users</strong> &harr; <strong>recipe</strong> (via <strong>bookmarks</strong>)
+                        &nbsp;|&nbsp;
+                        Many-to-many relationship: a user can bookmark many recipes, a recipe can be saved by many
+                        users.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <a href="index.html" class="logo">SpiceRoute</a>
+                <p>A DBMS project built with Flask, MySQL, and vanilla JS.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Quick Links</h4>
+                <a href="index.html">Home</a>
+                <a href="index.html#categories">Categories</a>
+                <a href="about.html">About</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 SpiceRoute. DBMS Project.</p>
+        </div>
+    </footer>
+
+    <script>
+        // ─── Dark Mode (consistent with main site) ───────────────────────────────
+        (function initTheme() {
+            const saved = localStorage.getItem('spiceroute-theme');
+            if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            const chk = document.getElementById('themeToggleChk');
+            if (chk) chk.checked = (saved === 'dark');
+        })();
+
+        function toggleTheme() {
+            const chk = document.getElementById('themeToggleChk');
+            if (chk.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                localStorage.setItem('spiceroute-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('spiceroute-theme', 'light');
+            }
+        }
+
+        // ─── Mermaid Init ────────────────────────────────────────────────────────
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'default',
+            er: { diagramPadding: 20, layoutDirection: 'TB', minEntityWidth: 100, minEntityHeight: 75, entityPadding: 15 }
+        });
+
+        // ─── Live DB Stats ───────────────────────────────────────────────────────
+        const API_URL = 'http://localhost:5000';
+
+        async function loadDbStats() {
+            try {
+                const res = await fetch(`${API_URL}/api/db-info`);
+                if (!res.ok) throw new Error('API error');
+                const data = await res.json();
+                animateCount('statRecipes', data.recipes);
+                animateCount('statIngredients', data.ingredients);
+                animateCount('statLinks', data.recipe_ingredients);
+                animateCount('statUsers', data.users);
+            } catch (e) {
+                ['statRecipes', 'statIngredients', 'statLinks', 'statUsers'].forEach(id => {
+                    document.getElementById(id).textContent = 'N/A';
+                });
+            }
+        }
+
+        function animateCount(id, target) {
+            const el = document.getElementById(id);
+            if (target === undefined || target === null) { el.textContent = 'N/A'; return; }
+            let current = 0;
+            const step = Math.max(1, Math.ceil(target / 60));
+            const timer = setInterval(() => {
+                current += step;
+                if (current >= target) { el.textContent = target.toLocaleString(); clearInterval(timer); }
+                else { el.textContent = current.toLocaleString(); }
+            }, 16);
+        }
+
+        document.addEventListener('DOMContentLoaded', loadDbStats);
+    </script>
+
+</body>
+
+</html>

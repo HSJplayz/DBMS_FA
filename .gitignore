@@ -1,0 +1,79 @@
+*.pkl
+# =====================
+# Python
+# =====================
+__pycache__/
+*.py[cod]
+*$py.class
+
+# =====================
+# Virtual Environments
+# =====================
+venv/
+.venv/
+env/
+ENV/
+
+# =====================
+# Flask / App specific
+# =====================
+instance/
+*.sqlite3
+*.db
+*.log
+
+# Flask cache / sessions
+.flaskenv
+.webassets-cache
+
+# =====================
+# Environment variables
+# =====================
+.env
+.env.*
+!.env.example
+
+# =====================
+# Testing / Coverage
+# =====================
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# =====================
+# Packaging / Build
+# =====================
+build/
+dist/
+*.egg-info/
+
+# =====================
+# Jupyter / Data
+# =====================
+.ipynb_checkpoints/
+*.pkl
+*.joblib
+*.parquet
+*.csv
+
+# =====================
+# IDEs / Editors
+# =====================
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# =====================
+# OS junk
+# =====================
+.DS_Store
+Thumbs.db
+
+# =====================
+# Logs
+# =====================
+logs/
+*.log
